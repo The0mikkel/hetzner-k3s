@@ -1,4 +1,6 @@
-# hetzner-k3s
+# Terraform - Hetzner k3s
+
+This directory, contains terraform code to spin up a k3s cluster on Hetzner Cloud. (deployed using Terraform and [kube-hetzner](https://github.com/kube-hetzner/terraform-hcloud-kube-hetzner))
 
 ## Pre-requisites
 

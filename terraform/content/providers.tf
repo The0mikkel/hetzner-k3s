@@ -6,7 +6,7 @@ terraform {
   required_version = ">= 1.6"
 
   required_providers {
-	kubernetes = {
+    kubernetes = {
       source  = "hashicorp/kubernetes"
       version = "2.29.0"
     }
@@ -37,7 +37,7 @@ provider "hcloud" {
 }
 
 provider "kubernetes" {
-	config_path = "../cluster/k3s_kubeconfig.yaml"
+  config_path = "../cluster/k3s_kubeconfig.yaml"
 }
 
 provider "helm" {
@@ -59,7 +59,7 @@ variable "email" {
 }
 
 variable "hcloud_token" {
-  sensitive = true
+  sensitive   = true
   description = "Hetzner Cloud API Token"
 }
 

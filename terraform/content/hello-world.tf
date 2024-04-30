@@ -21,14 +21,14 @@ resource "kubernetes_ingress_v1" "hello-world" {
   }
 
   spec {
-	default_backend {
-	  service {
-		name = kubernetes_service_v1.hello-world.metadata.0.name
-		port {
-		  number = 80
-		}
-	  }
-	}
+    default_backend {
+      service {
+        name = kubernetes_service_v1.hello-world.metadata.0.name
+        port {
+          number = 80
+        }
+      }
+    }
 
     rule {
       host = "demo.${var.cluster_dns}"
@@ -57,9 +57,9 @@ resource "kubernetes_ingress_v1" "hello-world" {
   }
 
   depends_on = [
-	kubernetes_namespace.hello-world,
+    kubernetes_namespace.hello-world,
     kubernetes_service_v1.hello-world,
-	module.cert_manager,
+    module.cert_manager,
   ]
 }
 

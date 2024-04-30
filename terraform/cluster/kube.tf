@@ -198,7 +198,7 @@ module "kube-hetzner" {
       # Enable automatic backups via Hetzner (default: false)
       # backups = true
     },
-	{
+    {
       name        = "agents-nbg1",
       server_type = "cpx21",
       location    = "nbg1",
@@ -240,14 +240,14 @@ module "kube-hetzner" {
     #  taints      = [],
     #  count       = 1
 
-      # In the case of using Longhorn, you can use Hetzner volumes instead of using the node's own storage by specifying a value from 10 to 10000 (in GB)
-      # It will create one volume per node in the nodepool, and configure Longhorn to use them.
-      # Something worth noting is that Volume storage is slower than node storage, which is achieved by not mentioning longhorn_volume_size or setting it to 0.
-      # So for something like DBs, you definitely want node storage, for other things like backups, volume storage is fine, and cheaper.
-      # longhorn_volume_size = 20
+    # In the case of using Longhorn, you can use Hetzner volumes instead of using the node's own storage by specifying a value from 10 to 10000 (in GB)
+    # It will create one volume per node in the nodepool, and configure Longhorn to use them.
+    # Something worth noting is that Volume storage is slower than node storage, which is achieved by not mentioning longhorn_volume_size or setting it to 0.
+    # So for something like DBs, you definitely want node storage, for other things like backups, volume storage is fine, and cheaper.
+    # longhorn_volume_size = 20
 
-      # Enable automatic backups via Hetzner (default: false)
-      # backups = true
+    # Enable automatic backups via Hetzner (default: false)
+    # backups = true
     #},
     # Egress nodepool useful to route egress traffic using Hetzner Floating IPs (https://docs.hetzner.com/cloud/floating-ips)
     # used with Cilium's Egress Gateway feature https://docs.cilium.io/en/stable/gettingstarted/egress-gateway/
@@ -1029,7 +1029,7 @@ output "kubeconfig" {
 # ----------------------
 
 variable "hcloud_token" {
-  sensitive = true
+  sensitive   = true
   description = "Hetzner Cloud API Token"
 }
 
@@ -1043,14 +1043,14 @@ variable "ssh_key_public_path" {
 
 variable "ssh_extra_keys_path" {
   description = "Additional public keys to add to the servers"
-  type = list(string)
-  default = [ ]
+  type        = list(string)
+  default     = []
 }
 
 variable "ssh_extra_keys_label" {
   description = "Label for the additional public keys to add to the servers"
-  type = string
-  default = "type=hetzner-k3s"
+  type        = string
+  default     = "type=hetzner-k3s"
 }
 
 variable "cloudflare_api_token" {

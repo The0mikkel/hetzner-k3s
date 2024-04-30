@@ -69,7 +69,7 @@ resource "kubernetes_ingress_v1" "argocd-ingress" {
 
   depends_on = [
     kubernetes_namespace_v1.argocd,
-	module.argocd-kubernetes,
-	module.cert_manager,
+    module.argocd-kubernetes,
+    module.cert_manager,
   ]
 }

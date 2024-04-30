@@ -1,19 +1,19 @@
 # ------------------------
 # Hetzner
 # ------------------------
-hcloud_token="<token>"
+hcloud_token = "<token>"
 
 # ------------------------
 # Cloudflare variables
 # ------------------------
-cloudflare_api_token = "<token>"        # Cloudflare API Token for updating the DNS records
-cloudflare_dns       = "<dns>" # The domain name to use for the DNS records
+cloudflare_api_token = "<token>" # Cloudflare API Token for updating the DNS records
+cloudflare_dns       = "<dns>"   # The domain name to use for the DNS records
 
 # ------------------------
 # Generic information
 # ------------------------
-cluster_dns = "<dns>" # The domain name to use for the DNS records
-email = "<email>" # Email to use for the ACME certificate
+cluster_dns = "<dns>"   # The domain name to use for the DNS records
+email       = "<email>" # Email to use for the ACME certificate
 
 # ----------------------
 # ArgoCD configuration

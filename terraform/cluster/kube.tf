@@ -1,3 +1,76 @@
+# ----------------------
+# Terraform Configuration
+# ----------------------
+
+terraform {
+  required_version = ">= 1.6"
+
+  required_providers {
+    hcloud = {
+      source  = "hetznercloud/hcloud"
+      version = ">= 1.43.0"
+    }
+
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = ">=4.18"
+    }
+  }
+}
+
+# ----------------------
+# Providers
+# ----------------------
+
+provider "hcloud" {
+  token = var.hcloud_token
+}
+
+provider "cloudflare" {
+  api_token = var.cloudflare_api_token
+}
+
+
+# ----------------------
+# DNS
+# ----------------------
+
+data "cloudflare_zones" "domain_name_zone" {
+  filter {
+    name = var.cloudflare_dns
+  }
+}
+
+# Create DNS A record
+resource "cloudflare_record" "domain_name" {
+  zone_id = data.cloudflare_zones.domain_name_zone.zones.0.id
+  name    = var.cluster_dns
+  value   = module.kube-hetzner.ingress_public_ipv4
+  type    = "A"
+  ttl     = 1
+
+  depends_on = [
+    data.cloudflare_zones.domain_name_zone,
+  ]
+}
+
+# Create DNS A wildcard record
+resource "cloudflare_record" "wildcard_domain_name" {
+  zone_id = data.cloudflare_zones.domain_name_zone.zones.0.id
+  name    = "*.${var.cluster_dns}"
+  value   = var.cluster_dns
+  type    = "CNAME"
+  ttl     = 1
+
+  depends_on = [
+    data.cloudflare_zones.domain_name_zone,
+  ]
+}
+
+# ----------------------
+# Cluster setup
+# ----------------------
+
 module "kube-hetzner" {
   providers = {
     hcloud = hcloud
@@ -109,12 +182,29 @@ module "kube-hetzner" {
 
   agent_nodepools = [
     {
-      name        = "agent-small",
-      server_type = "cpx11",
+      name        = "agents-fsn1",
+      server_type = "cpx21",
       location    = "fsn1",
       labels      = [],
       taints      = [],
-      count       = 1
+      count       = 2
+      # swap_size   = "2G" # remember to add the suffix, examples: 512M, 1G
+      # zram_size   = "2G" # remember to add the suffix, examples: 512M, 1G
+      # kubelet_args = ["kube-reserved=cpu=50m,memory=300Mi,ephemeral-storage=1Gi", "system-reserved=cpu=250m,memory=300Mi"]
+
+      # Fine-grained control over placement groups (nodes in the same group are spread over different physical servers, 10 nodes per placement group max):
+      # placement_group = "default"
+
+      # Enable automatic backups via Hetzner (default: false)
+      # backups = true
+    },
+	{
+      name        = "agents-nbg1",
+      server_type = "cpx21",
+      location    = "nbg1",
+      labels      = [],
+      taints      = [],
+      count       = 2
       # swap_size   = "2G" # remember to add the suffix, examples: 512M, 1G
       # zram_size   = "2G" # remember to add the suffix, examples: 512M, 1G
       # kubelet_args = ["kube-reserved=cpu=50m,memory=300Mi,ephemeral-storage=1Gi", "system-reserved=cpu=250m,memory=300Mi"]
@@ -126,12 +216,12 @@ module "kube-hetzner" {
       # backups = true
     },
     {
-      name        = "agent-large",
+      name        = "agents-hel1",
       server_type = "cpx21",
       location    = "hel1",
       labels      = [],
       taints      = [],
-      count       = 1
+      count       = 2
 
       # Fine-grained control over placement groups (nodes in the same group are spread over different physical servers, 10 nodes per placement group max):
       # placement_group = "default"
@@ -139,16 +229,16 @@ module "kube-hetzner" {
       # Enable automatic backups via Hetzner (default: false)
       # backups = true
     },
-    {
-      name        = "storage",
-      server_type = "cpx21",
-      location    = "hel1",
-      # Fully optional, just a demo.
-      labels      = [
-        "node.kubernetes.io/server-usage=storage"
-      ],
-      taints      = [],
-      count       = 1
+    #{
+    #  name        = "storage",
+    #  server_type = "cpx21",
+    #  location    = "hel1",
+    #  # Fully optional, just a demo.
+    #  labels      = [
+    #    "node.kubernetes.io/server-usage=storage"
+    #  ],
+    #  taints      = [],
+    #  count       = 1
 
       # In the case of using Longhorn, you can use Hetzner volumes instead of using the node's own storage by specifying a value from 10 to 10000 (in GB)
       # It will create one volume per node in the nodepool, and configure Longhorn to use them.
@@ -158,7 +248,7 @@ module "kube-hetzner" {
 
       # Enable automatic backups via Hetzner (default: false)
       # backups = true
-    },
+    #},
     # Egress nodepool useful to route egress traffic using Hetzner Floating IPs (https://docs.hetzner.com/cloud/floating-ips)
     # used with Cilium's Egress Gateway feature https://docs.cilium.io/en/stable/gettingstarted/egress-gateway/
     # See the https://github.com/kube-hetzner/terraform-hcloud-kube-hetzner#examples for an example use case.
@@ -370,7 +460,7 @@ module "kube-hetzner" {
   # To use local storage on the nodes, you can enable Longhorn, default is "false".
   # See a full recap on how to configure agent nodepools for longhorn here https://github.com/kube-hetzner/terraform-hcloud-kube-hetzner/discussions/373#discussioncomment-3983159
   # Also see Longhorn best practices here https://gist.github.com/ifeulner/d311b2868f6c00e649f33a72166c2e5b
-  # enable_longhorn = true
+  enable_longhorn = true
 
   # By default, longhorn is pulled from https://charts.longhorn.io.
   # If you need a version of longhorn which assures compatibility with rancher you can set this variable to https://charts.rancher.io.
@@ -653,7 +743,7 @@ module "kube-hetzner" {
   # block_icmp_ping_in = true
 
   # You can enable cert-manager (installed by Helm behind the scenes) with the following flag, the default is "true".
-  enable_cert_manager = true
+  enable_cert_manager = false
 
   # IP Addresses to use for the DNS Servers, the defaults are the ones provided by Hetzner https://docs.hetzner.com/dns-console/dns/general/recursive-name-servers/.
   # The number of different DNS servers is limited to 3 by Kubernetes itself.
@@ -929,8 +1019,50 @@ bootstrapPassword: "supermario"
 
 }
 
-
 output "kubeconfig" {
   value     = module.kube-hetzner.kubeconfig
   sensitive = true
 }
+
+# ----------------------
+# Variables
+# ----------------------
+
+variable "hcloud_token" {
+  sensitive = true
+  description = "Hetzner Cloud API Token"
+}
+
+variable "ssh_key_private_path" {
+  description = "SSH Key to use for the servers"
+}
+
+variable "ssh_key_public_path" {
+  description = "SSH Key to use for the servers"
+}
+
+variable "ssh_extra_keys_path" {
+  description = "Additional public keys to add to the servers"
+  type = list(string)
+  default = [ ]
+}
+
+variable "ssh_extra_keys_label" {
+  description = "Label for the additional public keys to add to the servers"
+  type = string
+  default = "type=hetzner-k3s"
+}
+
+variable "cloudflare_api_token" {
+  sensitive = true # Requires terraform >= 0.14
+  type      = string
+}
+
+variable "cloudflare_dns" {
+  type = string
+}
+
+variable "cluster_dns" {
+  type = string
+}
+

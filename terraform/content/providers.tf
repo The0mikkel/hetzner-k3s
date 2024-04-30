@@ -37,12 +37,12 @@ provider "hcloud" {
 }
 
 provider "kubernetes" {
-	config_path = "./k3s_kubeconfig.yaml"
+	config_path = "../cluster/k3s_kubeconfig.yaml"
 }
 
 provider "helm" {
   kubernetes {
-    config_path = "./k3s_kubeconfig.yaml"
+    config_path = "../cluster/k3s_kubeconfig.yaml"
   }
 }
 
@@ -61,26 +61,6 @@ variable "email" {
 variable "hcloud_token" {
   sensitive = true
   description = "Hetzner Cloud API Token"
-}
-
-variable "ssh_key_private_path" {
-  description = "SSH Key to use for the servers"
-}
-
-variable "ssh_key_public_path" {
-  description = "SSH Key to use for the servers"
-}
-
-variable "ssh_extra_keys_path" {
-  description = "Additional public keys to add to the servers"
-  type = list(string)
-  default = [ ]
-}
-
-variable "ssh_extra_keys_label" {
-  description = "Label for the additional public keys to add to the servers"
-  type = string
-  default = "type=hetzner-k3s"
 }
 
 variable "cloudflare_api_token" {

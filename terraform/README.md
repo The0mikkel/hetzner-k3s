@@ -27,7 +27,11 @@ In order to connect to the servers, you need to have an SSH key pair. The keys p
 
 ## Running the setup
 
-### Initial setup - Creation of snapshots
+### Cluster 
+
+Setup the cluster in `/cluster` directory.
+
+#### Initial setup - Creation of snapshots
 
 In order to create the cluster, we need to create snapshots of the servers that will be used in the cluster. This is done by running the following command (say yes, to build snapshots using packer):
 
@@ -37,7 +41,7 @@ tmp_script=$(mktemp) && curl -sSL -o "${tmp_script}" https://raw.githubuserconte
 **Note:** This will create a snapshot of the server, which will be used as the base image for the Kubernetes cluster, as well as ensuring local software is installed.  
 *The software has been provided by the [kube-hetzner](https://github.com/kube-hetzner/terraform-hcloud-kube-hetzner) project.*
 
-### Cluster setup
+#### Cluster setup
 
 Configure the `tfvars/template.tfvars` file with the required values.
 
@@ -49,3 +53,18 @@ tofu apply --var-file tfvars/template.tfvars
 ```
 
 Now, watch the cluster being created.
+
+### Content
+
+Setup the content of the cluster in `/content` directory.
+
+Configure the `tfvars/template.tfvars` file with the required values.
+
+Then run the following command to create the Kubernetes cluster:
+
+```bash
+tofu init
+tofu apply --var-file tfvars/template.tfvars
+```
+
+Now, watch the content being deployed.

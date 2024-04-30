@@ -28,7 +28,7 @@ resource "kubernetes_ingress_v1" "argocd-ingress" {
     namespace = kubernetes_namespace_v1.argocd.metadata.0.name
 
     annotations = {
-      "cert-manager.io/cluster-issuer" = kubernetes_manifest.cluster_issuer.manifest.metadata.name
+      "cert-manager.io/cluster-issuer" = module.cert_manager.cluster_issuer_name
     }
   }
 
@@ -69,5 +69,7 @@ resource "kubernetes_ingress_v1" "argocd-ingress" {
 
   depends_on = [
     kubernetes_namespace_v1.argocd,
+	module.argocd-kubernetes,
+	module.cert_manager,
   ]
 }

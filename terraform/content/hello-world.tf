@@ -12,17 +12,26 @@ resource "kubernetes_namespace" "hello-world" {
 # Ingress
 resource "kubernetes_ingress_v1" "hello-world" {
   metadata {
-    name      = "hello-world"
+    name      = "hello-world-ingress"
     namespace = kubernetes_namespace.hello-world.metadata.0.name
 
     annotations = {
-		"cert-manager.io/cluster-issuer" = kubernetes_manifest.cluster_issuer.manifest.metadata.name
+      "cert-manager.io/cluster-issuer" = module.cert_manager.cluster_issuer_name
     }
   }
 
   spec {
+	default_backend {
+	  service {
+		name = kubernetes_service_v1.hello-world.metadata.0.name
+		port {
+		  number = 80
+		}
+	  }
+	}
+
     rule {
-      host = "hello-world.${var.cluster_dns}"
+      host = "demo.${var.cluster_dns}"
       http {
         path {
           path = "/"
@@ -40,7 +49,7 @@ resource "kubernetes_ingress_v1" "hello-world" {
 
     tls {
       hosts = [
-        "hello-world.${var.cluster_dns}"
+        "demo.${var.cluster_dns}"
       ]
 
       secret_name = "hello-world-cert"
@@ -48,8 +57,9 @@ resource "kubernetes_ingress_v1" "hello-world" {
   }
 
   depends_on = [
+	kubernetes_namespace.hello-world,
     kubernetes_service_v1.hello-world,
-    module.kube-hetzner
+	module.cert_manager,
   ]
 }
 

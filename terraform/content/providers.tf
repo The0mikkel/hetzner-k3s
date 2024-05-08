@@ -25,6 +25,14 @@ terraform {
       source  = "hetznercloud/hcloud"
       version = ">= 1.43.0"
     }
+
+    htpasswd = {
+      source = "loafoe/htpasswd"
+    }
+
+    http = {
+      source = "hashicorp/http"
+    }
   }
 }
 
@@ -48,6 +56,17 @@ provider "helm" {
 
 provider "cloudflare" {
   api_token = var.cloudflare_api_token
+}
+
+provider "http" {
+}
+
+provider "htpasswd" {
+}
+
+resource "random_password" "salt" {
+  length  = 8
+  special = true
 }
 
 # ------------------------
@@ -74,4 +93,17 @@ variable "cloudflare_dns" {
 
 variable "cluster_dns" {
   type = string
+}
+
+variable "traefik_namespace" {
+  type    = string
+  default = "traefik"
+}
+
+variable "traefik_basic_auth" {
+  type = map(string)
+  default = {
+    "user"     = "admin"
+    "password" = "admin"
+  }
 }

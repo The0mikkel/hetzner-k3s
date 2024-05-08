@@ -19,3 +19,11 @@ email       = "<email>" # Email to use for the ACME certificate
 # ArgoCD configuration
 # ----------------------
 argocd_admin_password = "<password>" # The password for the ArgoCD admin user
+
+# ----------------------
+# Traefik basic auth configuration
+# ----------------------
+traefik_basic_auth = {
+  user     = "<username>" # The username for the basic auth
+  password = "<password>" # The password for the basic auth
+}

@@ -60,7 +60,9 @@ Now, watch the cluster being created.
 
 Setup the content of the cluster in `/content` directory.
 
-Configure the `tfvars/template.tfvars` file with the required values.
+Configure the `tfvars/template.tfvars` file with the required values.  
+You will need to export the KUBECONFIG variable to the correct file, in order to interact with the cluster, even though Teraform does require a file to be set.
+`export KUBECONFIG=$(pwd)/../cluster/k3s_kubeconfig.yaml`
 
 Then run the following command to create the Kubernetes cluster:
 
